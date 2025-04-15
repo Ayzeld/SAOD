@@ -105,3 +105,16 @@ int main() {
     cout << "Сравнения: " << comparisons << ", Пересылки: " << swaps << endl;
     cout << "Серия: " << RunNumber(A, n) << endl;
     cout << "Контрольная
+
+    // Случайный массив
+    cout << "Случайный массив: ";
+    FillRand(A, n);
+    PrintArray(A, n);
+    ShellSort(A, n, comparisons, swaps);
+    cout << "Отсортированный массив: ";
+    PrintArray(A, n);
+    cout << "Сравнения: " << comparisons << ", Пересылки: " << swaps << endl;
+    cout << "Серия: " << RunNumber(A, n) << endl;
+    cout << "Контрольная сумма: " << CheckSum(A, n) << endl;
+    return 0;
+}
