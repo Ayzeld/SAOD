@@ -104,7 +104,7 @@ int main() {
     PrintArray(A, n);
     cout << "Сравнения: " << comparisons << ", Пересылки: " << swaps << endl;
     cout << "Серия: " << RunNumber(A, n) << endl;
-    cout << "Контрольная
+    cout << "Контрольная сумма: " << CheckSum(A, n) << endl;
 
     // Случайный массив
     cout << "Случайный массив: ";
