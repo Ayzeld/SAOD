@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 
 void FillInc(int A[], int n) {
     for (int i = 0; i < n; i++) A[i] = i;
@@ -52,49 +53,59 @@ void SelectSort(int A[], int n, int& comparisons, int& moves) {
     }
 }
 
+void PrintTableHeader() {
+    std::cout << "+------+----------------+---------------------+" << std::endl;
+    std::cout << "|  N   | M+C теоретич.  | Исходный Мфакт+Сфакт |" << std::endl;
+    std::cout << "|      |                | Убыв. | Случ. | Возр. |" << std::endl;
+    std::cout << "+------+----------------+-------+-------+-------+" << std::endl;
+}
+
+void PrintTableRow(int n, int theoretical, int dec, int rand, int inc) {
+    std::cout << "| " << std::setw(4) << n << " | " 
+              << std::setw(14) << theoretical << " | " 
+              << std::setw(5) << dec << " | " 
+              << std::setw(5) << rand << " | " 
+              << std::setw(5) << inc << " |" << std::endl;
+    std::cout << "+------+----------------+-------+-------+-------+" << std::endl;
+}
+
 int main() {
-    const int n = 10;
-    int A[n];
-    srand((unsigned)time(0));
-    int comparisons, moves;
-
-    std::cout << "Возрастающий массив: " << std::endl;
-    FillInc(A, n);
-    PrintMas(A, n);
-    std::cout << "Серий до сортировки: " << RunNumber(A, n) << std::endl;
-    std::cout << "Контрольная сумма: " << CheckSum(A, n) << std::endl;
-
-    SelectSort(A, n, comparisons, moves);
-    PrintMas(A, n);
-    std::cout << "Серий после сортировки: " << RunNumber(A, n) << std::endl;
-    std::cout << "Контрольная сумма: " << CheckSum(A, n) << std::endl;
-    std::cout << "Сравнения: " << comparisons << std::endl;
-    std::cout << "Переносы: " << moves << std::endl << std::endl;
-
-    std::cout << "Убывающий массив:" << std::endl;
-    FillDec(A, n);
-    PrintMas(A, n);
-    std::cout << "Серий до сортировки: " << RunNumber(A, n) << std::endl;
-    std::cout << "Контрольная сумма: " << CheckSum(A, n) << std::endl;
-
-    SelectSort(A, n, comparisons, moves);
-    PrintMas(A, n);
-    std::cout << "Серий после сортировки: " << RunNumber(A, n) << std::endl;
-    std::cout << "Контрольная сумма: " << CheckSum(A, n) << std::endl;
-    std::cout << "Сравнения: " << comparisons << std::endl;
-    std::cout << "Переносы: " << moves << std::endl << std::endl;
-
-    std::cout << "Рандомный массив: " << std::endl;
-    FillRand(A, n);
-    PrintMas(A, n);
-    std::cout << "Серий до сортировки: " << RunNumber(A, n) << std::endl;
-    std::cout << "Контрольная сумма: " << CheckSum(A, n) << std::endl;
+    const int sizes[] = {10, 100};
+    const int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
     
-    SelectSort(A, n, comparisons, moves);
-    PrintMas(A, n);
-    std::cout << "Серий после сортировки: " << RunNumber(A, n) << std::endl;
-    std::cout << "Контрольная сумма: " << CheckSum(A, n) << std::endl;
-    std::cout << "Сравнения: " << comparisons << std::endl;
-    std::cout << "Переносы: " << moves << std::endl << std::endl;
+    srand((unsigned)time(0));
+    
+    PrintTableHeader();
+    
+    for (int i = 0; i < num_sizes; i++) {
+        int n = sizes[i];
+        int* A = new int[n];
+        
+        // Теоретическое значение M+C для сортировки выбором: n²/2 - n/2 + 3(n-1)
+        int theoretical = (n*n)/2 - n/2 + 3*(n-1);
+        
+        // Для возрастающего массива
+        FillInc(A, n);
+        int inc_comparisons, inc_moves;
+        SelectSort(A, n, inc_comparisons, inc_moves);
+        int inc_total = inc_comparisons + inc_moves;
+        
+        // Для убывающего массива
+        FillDec(A, n);
+        int dec_comparisons, dec_moves;
+        SelectSort(A, n, dec_comparisons, dec_moves);
+        int dec_total = dec_comparisons + dec_moves;
+        
+        // Для случайного массива
+        FillRand(A, n);
+        int rand_comparisons, rand_moves;
+        SelectSort(A, n, rand_comparisons, rand_moves);
+        int rand_total = rand_comparisons + rand_moves;
+        
+        PrintTableRow(n, theoretical, dec_total, rand_total, inc_total);
+        
+        delete[] A;
+    }
+    
     return 0;
 }
