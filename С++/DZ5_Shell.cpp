@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
+
 using namespace std;
 
 // Функции заполнения массива
@@ -108,22 +109,48 @@ void InsertSort(int A[], int n, int& comparisons, int& swaps) {
     }
 }
 
+// ShellSort
+void ShellSort(int A[], int n, int& comparisons, int& swaps) {
+    comparisons = 0;
+    swaps = 0;
+
+    // Вычисление последовательности шагов по формуле Д.Кнута
+    int h = 1;
+    while (h < n / 3) {
+        h = 3 * h + 1; // h = 1, 4, 13, ...
+    }
+    while (h >= 1) {
+        // Сортировка вставками с интервалом h
+        for (int i = h; i < n; i++) {
+            int key = A[i];
+            int j = i;
+            while (j >= h && A[j - h] > key) {
+                comparisons++;
+                A[j] = A[j - h];
+                swaps++;
+                j -= h;
+            }
+            comparisons++;
+            A[j] = key;
+        }
+        h = (h - 1) / 3; // Уменьшаем шаг
+    }
+}
+
 // Вывод заголовка таблицы
 void PrintTableHeader() {
-    cout << "+------+----------------+----------------+----------------+----------------+" << endl;
-    cout << "|  N   |     Select     |     Bubble     |     Shaker     |     Insert     |" << endl;
-    cout << "|      | Mфакт+Сфакт    | Mфакт+Сфакт    | Mфакт+Сфакт    | Mфакт+Сфакт    |" << endl;
-    cout << "+------+----------------+----------------+----------------+----------------+" << endl;
+    cout << "+------+----------------+----------------+----------------+" << endl;
+    cout << "|  N   |     Insert     |     Shell      |" << endl;
+    cout << "|      | Mфакт+Сфакт    | Mфакт+Сфакт    |" << endl;
+    cout << "+------+----------------+----------------+----------------+" << endl;
 }
 
 // Вывод строки таблицы
-void PrintTableRow(int n, int select_total, int bubble_total, int shaker_total, int insert_total) {
+void PrintTableRow(int n, int insert_total, int shell_total) {
     cout << "| " << setw(4) << n << " | "
-         << setw(14) << select_total << " | "
-         << setw(14) << bubble_total << " | "
-         << setw(14) << shaker_total << " | "
-         << setw(14) << insert_total << " |" << endl;
-    cout << "+------+----------------+----------------+----------------+----------------+" << endl;
+         << setw(14) << insert_total << " | "
+         << setw(14) << shell_total << " |" << endl;
+    cout << "+------+----------------+----------------+----------------+" << endl;
 }
 
 int main() {
@@ -139,31 +166,19 @@ int main() {
         // Создаем случайный массив
         FillRand(A, n);
 
-        // Сортировка выбором
-        int select_comparisons, select_moves;
-        SelectSort(A, n, select_comparisons, select_moves);
-        int select_total = select_comparisons + select_moves;
-
-        // Сортировка пузырьком
-        FillRand(A, n); // Перезаполняем массив
-        int bubble_M, bubble_C;
-        BubbleSort(A, n, bubble_M, bubble_C);
-        int bubble_total = bubble_M + bubble_C;
-
-        // Шейкерная сортировка
-        FillRand(A, n); // Перезаполняем массив
-        int shaker_M, shaker_C;
-        ShakerSort(A, n, shaker_M, shaker_C);
-        int shaker_total = shaker_M + shaker_C;
-
         // Сортировка вставками
-        FillRand(A, n); // Перезаполняем массив
         int insert_comparisons, insert_swaps;
         InsertSort(A, n, insert_comparisons, insert_swaps);
         int insert_total = insert_comparisons + insert_swaps;
 
+        // ShellSort
+        FillRand(A, n); // Перезаполняем массив
+        int shell_comparisons, shell_swaps;
+        ShellSort(A, n, shell_comparisons, shell_swaps);
+        int shell_total = shell_comparisons + shell_swaps;
+
         // Вывод результата
-        PrintTableRow(n, select_total, bubble_total, shaker_total, insert_total);
+        PrintTableRow(n, insert_total, shell_total);
         delete[] A;
     }
     return 0;
