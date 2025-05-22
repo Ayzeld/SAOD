@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
-#include <cmath> // для log2
+#include <cmath> 
 
 using namespace std;
 
