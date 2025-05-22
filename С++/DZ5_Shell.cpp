@@ -5,90 +5,12 @@
 
 using namespace std;
 
-// Функции заполнения массива
-void FillInc(int A[], int n) {
-    for (int i = 0; i < n; i++) {
-        A[i] = i;
-    }
-}
-
-void FillDec(int A[], int n) {
-    for (int i = 0; i < n; i++) {
-        A[i] = n - i - 1;
-    }
-}
-
 void FillRand(int A[], int n) {
     for (int i = 0; i < n; i++) {
         A[i] = rand() % 100;
     }
 }
 
-// Сортировка выбором
-void SelectSort(int A[], int n, int& comparisons, int& moves) {
-    comparisons = 0;
-    moves = 0;
-    for (int i = 0; i < n - 1; i++) {
-        int minIndex = i;
-        for (int j = i + 1; j < n; j++) {
-            comparisons++;
-            if (A[j] < A[minIndex]) minIndex = j;
-        }
-        // Обмен элементами
-        int temp = A[i];
-        A[i] = A[minIndex];
-        A[minIndex] = temp;
-        moves += 3; // Записываем все перемещения
-    }
-}
-
-// Пузырьковая сортировка
-void BubbleSort(int A[], int n, int& M, int& C) {
-    M = 0;
-    C = 0;
-    for (int i = 0; i < n - 1; ++i) {
-        for (int j = 0; j < n - i - 1; ++j) {
-            C++; // сравнение
-            if (A[j] > A[j + 1]) {
-                std::swap(A[j], A[j + 1]);
-                M += 3; // три пересылки при обмене
-            }
-        }
-    }
-}
-
-// Шейкерная сортировка
-void ShakerSort(int A[], int n, int& M, int& C) {
-    int left = 0, right = n - 1;
-    bool swapped = true;
-    M = 0;
-    C = 0;
-    while (left < right && swapped) {
-        swapped = false;
-        for (int i = left; i < right; i++) {
-            C++;
-            if (A[i] > A[i + 1]) {
-                std::swap(A[i], A[i + 1]);
-                M += 3;
-                swapped = true;
-            }
-        }
-        right--;
-        if (!swapped) break;
-        swapped = false;
-        for (int i = right; i > left; i--) {
-            C++;
-            if (A[i] < A[i - 1]) {
-                std::swap(A[i], A[i - 1]);
-                M += 3;
-                swapped = true;
-            }
-        }
-        left++;
-    }
-}
-
-// Сортировка вставками
 void InsertSort(int A[], int n, int& comparisons, int& swaps) {
     comparisons = 0;
     swaps = 0;
@@ -109,18 +31,16 @@ void InsertSort(int A[], int n, int& comparisons, int& swaps) {
     }
 }
 
-// ShellSort
-void ShellSort(int A[], int n, int& comparisons, int& swaps) {
+void ShellSort_Knut(int A[], int n, int& comparisons, int& swaps) {
     comparisons = 0;
     swaps = 0;
 
-    // Вычисление последовательности шагов по формуле Д.Кнута
     int h = 1;
     while (h < n / 3) {
-        h = 3 * h + 1; // h = 1, 4, 13, ...
+        h = 3 * h + 1;
     }
+
     while (h >= 1) {
-        // Сортировка вставками с интервалом h
         for (int i = h; i < n; i++) {
             int key = A[i];
             int j = i;
@@ -132,54 +52,60 @@ void ShellSort(int A[], int n, int& comparisons, int& swaps) {
             }
             comparisons++;
             A[j] = key;
+            if (j != i) swaps++;
         }
-        h = (h - 1) / 3; // Уменьшаем шаг
+        h = (h - 1) / 3;
     }
 }
 
-// Вывод заголовка таблицы
 void PrintTableHeader() {
-    cout << "+------+----------------+----------------+----------------+" << endl;
-    cout << "|  N   |     Insert     |     Shell      |" << endl;
-    cout << "|      | Mфакт+Сфакт    | Mфакт+Сфакт    |" << endl;
-    cout << "+------+----------------+----------------+----------------+" << endl;
+    cout << "+------+------------------------+------------------------+------------------------+" << endl;
+    cout << "|  N   | Shell (Кнут) M+С       | InsertSort M+С         | Shell M+С повторно     |" << endl;
+    cout << "+------+------------------------+------------------------+------------------------+" << endl;
 }
 
-// Вывод строки таблицы
-void PrintTableRow(int n, int insert_total, int shell_total) {
+void PrintTableRow(int n, int shell1_total, int insert_total, int shell2_total) {
     cout << "| " << setw(4) << n << " | "
-         << setw(14) << insert_total << " | "
-         << setw(14) << shell_total << " |" << endl;
-    cout << "+------+----------------+----------------+----------------+" << endl;
+         << setw(22) << shell1_total << " | "
+         << setw(22) << insert_total << " | "
+         << setw(22) << shell2_total << " |" << endl;
+    cout << "+------+------------------------+------------------------+------------------------+" << endl;
 }
 
 int main() {
     const int sizes[] = {100, 200, 300, 400, 500};
     const int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
     srand(static_cast<unsigned>(time(0)));
+
     PrintTableHeader();
 
     for (int i = 0; i < num_sizes; i++) {
         int n = sizes[i];
         int* A = new int[n];
 
-        // Создаем случайный массив
+        // ShellSort (по Кнуту, первый раз)
         FillRand(A, n);
+        int shell1_comp, shell1_swaps;
+        ShellSort_Knut(A, n, shell1_comp, shell1_swaps);
+        int shell1_total = shell1_comp + shell1_swaps;
 
-        // Сортировка вставками
-        int insert_comparisons, insert_swaps;
-        InsertSort(A, n, insert_comparisons, insert_swaps);
-        int insert_total = insert_comparisons + insert_swaps;
+        // InsertSort
+        FillRand(A, n);
+        int insert_comp, insert_swaps;
+        InsertSort(A, n, insert_comp, insert_swaps);
+        int insert_total = insert_comp + insert_swaps;
 
-        // ShellSort
-        FillRand(A, n); // Перезаполняем массив
-        int shell_comparisons, shell_swaps;
-        ShellSort(A, n, shell_comparisons, shell_swaps);
-        int shell_total = shell_comparisons + shell_swaps;
+        // ShellSort (повторно)
+        FillRand(A, n);
+        int shell2_comp, shell2_swaps;
+        ShellSort_Knut(A, n, shell2_comp, shell2_swaps);
+        int shell2_total = shell2_comp + shell2_swaps;
 
-        // Вывод результата
-        PrintTableRow(n, insert_total, shell_total);
+        PrintTableRow(n, shell1_total, insert_total, shell2_total);
+
         delete[] A;
     }
+
     return 0;
 }
+ 
