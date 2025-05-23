@@ -30,10 +30,10 @@ void printDirectory(const vector<Contact>& directory) {
 int main() {
     // Исходный справочник
     vector<Contact> directory = {
-        {"Alice Smith", "123-456-7890", "alice@example.com", "123 Main St"},
-        {"Bob Johnson", "234-567-8901", "bob@example.com", "456 Elm St"},
-        {"Charlie Brown", "345-678-9012", "charlie@example.com", "789 Oak St"},
-        {"David Lee", "456-789-0123", "david@example.com", "101 Pine St"}
+        {"Alice Smith", "7-913-456-7890", "alice2000@yandex.com", "123 Main St"},
+        {"Bob Johnson", "7-234-567-8901", "bobaaa@gmail.com", "456 Elm St"},
+        {"Charlie Brown", "7-345-678-9012", "charlie@example.com", "789 Oak St"},
+        {"David Lee", "7-900-7897--0123", "david228@gmal.com", "101 Pine St"}
     };
     cout << "Исходный справочник:" << endl;
     printDirectory(directory);
