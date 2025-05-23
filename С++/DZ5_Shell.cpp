@@ -1,60 +1,55 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <iomanip>
-
 using namespace std;
 
-void FillRand(int A[], int n) {
-    for (int i = 0; i < n; i++) {
-        A[i] = rand() % 100;
-    }
+void FillInc(int A[], int n) {
+    for (int i = 0; i < n; i++) A[i] = i;
 }
 
-void InsertSort(int A[], int n, int& comparisons, int& swaps) {
-    comparisons = 0;
-    swaps = 0;
+void FillDec(int A[], int n) {
+    for (int i = 0; i < n; i++) A[i] = n - i - 1;
+}
+
+void InsertSort(int A[], int n, int& M, int& C) {
+    M = 0;
+    C = 0;
     for (int i = 1; i < n; i++) {
         int key = A[i];
+        M++;
         int j = i - 1;
-        while (j >= 0 && A[j] > key) {
-            comparisons++;
+        while (j >= 0 && (++C, A[j] > key)) {
             A[j + 1] = A[j];
-            swaps++;
+            M++;
             j--;
         }
-        comparisons++;
         A[j + 1] = key;
-        if (j + 1 != i) {
-            swaps++;
-        }
+        M++;
     }
 }
 
-void ShellSort_Knut(int A[], int n, int& comparisons, int& swaps) {
-    comparisons = 0;
-    swaps = 0;
-
-    int h = 1;
-    while (h < n / 3) {
-        h = 3 * h + 1;
+void ShellSort_Knut(int A[], int n, int& C, int& M) {
+    C = 0;
+    M = 0;
+    int B[30], l = 1;
+    B[0] = 1;
+    while (B[l - 1] < n / 2) {
+        B[l] = B[l - 1] * 2 + 1;
+        l++;
     }
-
-    while (h >= 1) {
-        for (int i = h; i < n; i++) {
-            int key = A[i];
-            int j = i;
-            while (j >= h && A[j - h] > key) {
-                comparisons++;
-                A[j] = A[j - h];
-                swaps++;
-                j -= h;
+    for (int s = l - 1; s >= 0; s--) {
+        int k = B[s];
+        for (int i = k; i < n; i++) {
+            int t = A[i];
+            M++;
+            int j = i - k;
+            while (j >= 0 && (++C, t < A[j])) {
+                A[j + k] = A[j];
+                M++;
+                j -= k;
             }
-            comparisons++;
-            A[j] = key;
-            if (j != i) swaps++;
+            A[j + k] = t;
+            M++;
         }
-        h = (h - 1) / 3;
     }
 }
 
@@ -73,39 +68,32 @@ void PrintTableRow(int n, int shell1_total, int insert_total, int shell2_total) 
 }
 
 int main() {
-    const int sizes[] = {100, 200, 300, 400, 500};
-    const int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-    srand(static_cast<unsigned>(time(0)));
+    int sizes[] = {100, 200, 300, 400, 500};
 
     PrintTableHeader();
-
-    for (int i = 0; i < num_sizes; i++) {
+    for (int i = 0; i < 5; i++) {
         int n = sizes[i];
         int* A = new int[n];
+        int M, C;
 
-        // ShellSort (по Кнуту, первый раз)
-        FillRand(A, n);
-        int shell1_comp, shell1_swaps;
-        ShellSort_Knut(A, n, shell1_comp, shell1_swaps);
-        int shell1_total = shell1_comp + shell1_swaps;
+        // Shell (возрастающий)
+        FillInc(A, n);
+        ShellSort_Knut(A, n, C, M);
+        int shell1_total = C + M;
 
-        // InsertSort
-        FillRand(A, n);
-        int insert_comp, insert_swaps;
-        InsertSort(A, n, insert_comp, insert_swaps);
-        int insert_total = insert_comp + insert_swaps;
+        // Insert (убывающий)
+        FillDec(A, n);
+        InsertSort(A, n, M, C);
+        int insert_total = C + M;
 
-        // ShellSort (повторно)
-        FillRand(A, n);
-        int shell2_comp, shell2_swaps;
-        ShellSort_Knut(A, n, shell2_comp, shell2_swaps);
-        int shell2_total = shell2_comp + shell2_swaps;
+        // Shell (повторный на возрастающем)
+        FillInc(A, n);
+        ShellSort_Knut(A, n, C, M);
+        int shell2_total = C + M;
 
         PrintTableRow(n, shell1_total, insert_total, shell2_total);
-
         delete[] A;
     }
 
     return 0;
 }
- 
