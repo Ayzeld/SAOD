@@ -1,182 +1,202 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <iomanip>
+#include <vector>
 #include <cmath>
+#include <ctime>
+#include <cstdlib>
 
 using namespace std;
 
-// Функции заполнения массива
-void FillInc(int A[], int n) {
+int C = 0;
+int M = 0;
+
+int C_build = 0;
+int M_build = 0;
+
+void FillInc(int n, vector<int>& A) {
     for (int i = 0; i < n; i++) {
         A[i] = i + 1;
     }
 }
 
-void FillDec(int A[], int n) {
+void FillDec(int n, vector<int>& A) {
     for (int i = 0; i < n; i++) {
         A[i] = n - i;
     }
 }
 
-void FillRand(int A[], int n) {
+void FillRand(int n, vector<int>& A) {
     for (int i = 0; i < n; i++) {
         A[i] = rand() % 1000;
     }
 }
 
-// Построение кучи с подсчётом сравнений и обменов
-void heapify(int A[], int n, int i, int& comparisons, int& swaps) {
-    int x = A[i];
-    swaps++;
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+int CheckSum(int n, const vector<int>& A) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += A[i];
+    }
+    return sum;
+}
 
+void PrintMas(int n, const vector<int>& A) {
+    for (int i = 0; i < n; i++) {
+        cout << A[i] << " ";
+    }
+    cout << "\n";
+}
+
+double calculate_M(int n) {
+    return n * log2(n) + 6.5 * n - 4;
+}
+
+double calculate_C(int n) {
+    return 2 * n * log2(n) + n + 2;
+}
+
+double calculate_M_build(int n) {
+    return log2(n) + 2;
+}
+
+double calculate_C_build(int n) {
+    return 2 * log2(n) + 1;
+}
+
+void HeapBuild(vector<int>& A, int L, int R) {
+    int x = A[L];
+    M++;
+    M_build++;
+    int i = L;
     while (true) {
-        int j = 2 * largest + 1;
-        if (j >= n)
+        int j = 2 * i + 1;
+        if (j > R)
             break;
 
-        comparisons++;
-        if (j + 1 < n && A[j + 1] > A[j]) {
+        C++;
+        C_build++;
+        if (j < R && A[j + 1] > A[j]) {
             j++;
         }
 
-        comparisons++;
+        C++;
+        C_build++;
         if (x >= A[j])
             break;
 
-        A[largest] = A[j];
-        swaps++;
-        largest = j;
+        A[i] = A[j];
+        M++;
+        M_build++;
+        i = j;
     }
 
-    if (largest != i) {
-        swaps++;
+    if (i != L) {
+        M++;
+        M_build++;
     }
-    A[largest] = x;
-    swaps++;
+    M++;
+    M_build++;
+    A[i] = x;
 }
 
-// Построение кучи
-void BuildHeap(int A[], int n, int& comparisons, int& swaps) {
-    comparisons = 0;
-    swaps = 0;
-    for (int i = n / 2 - 1; i >= 0; i--) {
-        heapify(A, n, i, comparisons, swaps);
-    }
-}
-
-// Полная сортировка кучей
-void HeapSort(int A[], int n, int& comparisons, int& swaps) {
-    comparisons = 0;
-    swaps = 0;
-
-    for (int i = n / 2 - 1; i >= 0; i--) {
-        heapify(A, n, i, comparisons, swaps);
+void HeapSort(vector<int>& A, int n) {
+    for (int L = n / 2 - 1; L >= 0; L--) {
+        HeapBuild(A, L, n - 1);
     }
 
-    for (int i = n - 1; i > 0; i--) {
-        int temp = A[0]; swaps++;
-        A[0] = A[i]; swaps++;
-        A[i] = temp; swaps++;
-
-        heapify(A, i, 0, comparisons, swaps);
+    for (int R = n - 1; R > 0; R--) {
+        swap(A[0], A[R]);
+        M += 3;
+        HeapBuild(A, 0, R - 1);
     }
 }
 
-int TheoreticalBuild(int n) {
-    return static_cast<int>(log2(n) + 2 + 2 * log2(n) + 1);
+void PrintTableHeader() {
+    cout << "| " << setw(5) << left << "N"
+         << " | " << setw(15) << "M+C теоретич."
+         << " | " << setw(41) << "Исходный Mfact + Cfact" << " |\n";
+    cout << "|       |               | Убыв.   | Случ.  | Возр.          |\n";
 }
 
-int TheoreticalSort(int n) {
-    return static_cast<int>(n * log2(n) + 6.5 * n - 4 + 2 * n * log2(n) + n + 2);
+void PrintTableRow(int N, int M_C_theoretical, const vector<int>& Mf_Cf_original) {
+    cout << "| " << setw(5) << left << N
+         << " | " << setw(13) << M_C_theoretical
+         << " | " << setw(7) << Mf_Cf_original[0]
+         << " | " << setw(6) << Mf_Cf_original[1]
+         << " | " << setw(14) << Mf_Cf_original[2] << " |\n";
 }
 
-// Таблица построения кучи
-void PrintBuildHeapTable() {
-    cout << "Таблица 1: Трудоёмкость построения кучи (BuildHeap)\n";
-    cout << "+------+--------------+--------+--------+--------+\n";
-    cout << "|  N   | Теоретич.   | Убыв.  | Случ.  | Возр.  |\n";
-    cout << "+------+--------------+--------+--------+--------+\n";
-
-    int sizes[] = {100, 200, 300, 400, 500};
-
-    for (int n : sizes) {
-        int* A = new int[n];
-
-        int comp = 0, swp = 0;
-
-        FillDec(A, n);
-        BuildHeap(A, n, comp, swp);
-        int total_dec = comp + swp;
-
-        FillRand(A, n);
-        BuildHeap(A, n, comp, swp);
-        int total_rand = comp + swp;
-
-        FillInc(A, n);
-        BuildHeap(A, n, comp, swp);
-        int total_inc = comp + swp;
-
-        int theoretical = static_cast<int>(log2(n) + 2 + 2 * log2(n) + 1);
-
-        cout << "| " << setw(4) << n << " | "
-             << setw(12) << theoretical << " | "
-             << setw(6) << total_dec << " | "
-             << setw(6) << total_rand << " | "
-             << setw(6) << total_inc << " |\n";
-        cout << "+------+--------------+--------+--------+--------+\n";
-
-        delete[] A;
-    }
+void PrintTableHeader2() {
+    cout << "| " << setw(5) << left << "N"
+         << " | " << setw(41) << "Исходный Mfact + Cfact" << " |\n";
+    cout << "|       | Убыв.   | Случ.  | Возр.          |\n";
 }
 
-// Таблица полной сортировки
-void PrintHeapSortTable() {
-    cout << "\nТаблица 2: Трудоёмкость полной сортировки (HeapSort)\n";
-    cout << "+------+--------------+--------+--------+--------+\n";
-    cout << "|  N   | Теоретич.   | Убыв.  | Случ.  | Возр.  |\n";
-    cout << "+------+--------------+--------+--------+--------+\n";
-
-    int sizes[] = {100, 200, 300, 400, 500};
-
-    for (int n : sizes) {
-        int* A = new int[n];
-
-        int comp = 0, swp = 0;
-
-        FillDec(A, n);
-        HeapSort(A, n, comp, swp);
-        int total_dec = comp + swp;
-
-        FillRand(A, n);
-        HeapSort(A, n, comp, swp);
-        int total_rand = comp + swp;
-
-        FillInc(A, n);
-        HeapSort(A, n, comp, swp);
-        int total_inc = comp + swp;
-
-        int theoretical = static_cast<int>(n * log2(n) + 6.5 * n - 4 + 2 * n * log2(n) + n + 2);
-
-        cout << "| " << setw(4) << n << " | "
-             << setw(12) << theoretical << " | "
-             << setw(6) << total_dec << " | "
-             << setw(6) << total_rand << " | "
-             << setw(6) << total_inc << " |\n";
-        cout << "+------+--------------+--------+--------+--------+\n";
-
-        delete[] A;
-    }
+void PrintTableRow2(int N, const vector<int>& Mf_Cf_original) {
+    cout << "| " << setw(5) << left << N
+         << " | " << setw(7) << Mf_Cf_original[0]
+         << " | " << setw(6) << Mf_Cf_original[1]
+         << " | " << setw(14) << Mf_Cf_original[2] << " |\n";
 }
 
 int main() {
-    srand(static_cast<unsigned>(time(0)));
+    srand(time(nullptr));
+    vector<int> sizes = {100, 200, 300, 400, 500};
 
-    PrintBuildHeapTable();
-    PrintHeapSortTable();
+    cout << "Таблица 1: Трудоемкость построения пирамиды\n";
+    PrintTableHeader();
+
+    for (int N : sizes) {
+        int teor = static_cast<int>(calculate_M_build(N) + calculate_C_build(N));
+        vector<int> Mf_Cf_original(3, 0);
+
+        vector<int> ArrDec(N);
+        FillDec(N, ArrDec);
+        HeapBuild(ArrDec, 0, N - 1);
+        Mf_Cf_original[0] = C_build + M_build;
+        C_build = M_build = 0;
+
+        vector<int> ArrRand(N);
+        FillRand(N, ArrRand);
+        HeapBuild(ArrRand, 0, N - 1);
+        Mf_Cf_original[1] = C_build + M_build;
+        C_build = M_build = 0;
+
+        vector<int> ArrInc(N);
+        FillInc(N, ArrInc);
+        HeapBuild(ArrInc, 0, N - 1);
+        Mf_Cf_original[2] = C_build + M_build;
+        C_build = M_build = 0;
+
+        PrintTableRow(N, teor, Mf_Cf_original);
+    }
+
+    cout << "\nТаблица 2: Трудоемкость сортировки\n";
+    PrintTableHeader2();
+
+    for (int N : sizes) {
+        int teor = static_cast<int>(calculate_M(N) + calculate_C(N));
+        vector<int> Mf_Cf_original(3, 0);
+
+        vector<int> ArrDec(N);
+        FillDec(N, ArrDec);
+        HeapSort(ArrDec, N);
+        Mf_Cf_original[0] = C + M;
+        C = M = 0;
+
+        vector<int> ArrRand(N);
+        FillRand(N, ArrRand);
+        HeapSort(ArrRand, N);
+        Mf_Cf_original[1] = C + M;
+        C = M = 0;
+
+        vector<int> ArrInc(N);
+        FillInc(N, ArrInc);
+        HeapSort(ArrInc, N);
+        Mf_Cf_original[2] = C + M;
+        C = M = 0;
+
+        PrintTableRow2(N, Mf_Cf_original);
+    }
 
     return 0;
 }
