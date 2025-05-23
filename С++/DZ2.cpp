@@ -62,7 +62,7 @@ void PrintTable() {
         int inc_total = C + M;
 
         std::cout << "| " << std::setw(4) << n << " | " 
-                  << std::setw(14) << (3 * (n*n - n)/2 + (n*n - n)/2) << " | "
+                  << std::setw(14) << (3 * (((n*n) - n)/4) + ((n*n) - n)/2) << " | "
                   << std::setw(5) << dec_total << " | "
                   << std::setw(5) << rand_total << " | "
                   << std::setw(5) << inc_total << " |" << std::endl;
