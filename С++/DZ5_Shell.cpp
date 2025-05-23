@@ -27,7 +27,31 @@ void InsertSort(int A[], int n, int& M, int& C) {
     }
 }
 
+// Shell по Кнуту
 void ShellSort_Knut(int A[], int n, int& C, int& M) {
+    C = 0;
+    M = 0;
+    int h = 1;
+    while (h < n / 3) h = 3 * h + 1;
+    while (h >= 1) {
+        for (int i = h; i < n; i++) {
+            int key = A[i];
+            M++;
+            int j = i;
+            while (j >= h && (++C, A[j - h] > key)) {
+                A[j] = A[j - h];
+                M++;
+                j -= h;
+            }
+            A[j] = key;
+            M++;
+        }
+        h = (h - 1) / 3;
+    }
+}
+
+// Shell из C-кода: шаги h = 1, 3, 7, 15, ...
+void ShellSort_C(int A[], int n, int& C, int& M) {
     C = 0;
     M = 0;
     int B[30], l = 1;
@@ -55,7 +79,7 @@ void ShellSort_Knut(int A[], int n, int& C, int& M) {
 
 void PrintTableHeader() {
     cout << "+------+------------------------+------------------------+------------------------+" << endl;
-    cout << "|  N   | Shell (Кнут) M+С       | InsertSort M+С         | Shell M+С повторно     |" << endl;
+    cout << "|  N   | Shell (Кнут) M+С       | InsertSort M+С         | Shell (C-style) M+С     |" << endl;
     cout << "+------+------------------------+------------------------+------------------------+" << endl;
 }
 
@@ -76,19 +100,19 @@ int main() {
         int* A = new int[n];
         int M, C;
 
-        // Shell (возрастающий)
+        // Shell по Кнуту (возрастающий)
         FillInc(A, n);
         ShellSort_Knut(A, n, C, M);
         int shell1_total = C + M;
 
-        // Insert (убывающий)
+        // Вставками (убывающий)
         FillDec(A, n);
         InsertSort(A, n, M, C);
         int insert_total = C + M;
 
-        // Shell (повторный на возрастающем)
+        // Shell из C-кода (возрастающий)
         FillInc(A, n);
-        ShellSort_Knut(A, n, C, M);
+        ShellSort_C(A, n, C, M);
         int shell2_total = C + M;
 
         PrintTableRow(n, shell1_total, insert_total, shell2_total);
