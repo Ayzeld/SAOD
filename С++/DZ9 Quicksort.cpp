@@ -2,98 +2,104 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
-#include <cmath> 
+#include <cmath>
 
 using namespace std;
 
-// Прототип функции partition (обязательно, т.к. используется в quickSort)
-int partition(int A[], int low, int high, int& comparisons, int& swaps);
+int C = 0; // Счётчик сравнений
+int M = 0; // Счётчик пересылок
 
-// Функции заполнения массива
 void FillInc(int A[], int n) {
     for (int i = 0; i < n; i++) {
-        A[i] = i;
+        A[i] = i + 1;
     }
 }
 
 void FillDec(int A[], int n) {
     for (int i = 0; i < n; i++) {
-        A[i] = n - i - 1;
+        A[i] = n - i;
     }
 }
 
 void FillRand(int A[], int n) {
     for (int i = 0; i < n; i++) {
-        A[i] = rand() % 100;
+        A[i] = rand() % 1000;
     }
 }
 
-// QuickSort
-void quickSort(int A[], int low, int high, int& comparisons, int& swaps) {
-    if (low < high) {
-        int pi = partition(A, low, high, comparisons, swaps);
-        quickSort(A, low, pi - 1, comparisons, swaps);
-        quickSort(A, pi + 1, high, comparisons, swaps);
-    }
+void Swap(int& a, int& b) {
+    int temp = a;
+    a = b;
+    b = temp;
+    M += 3; // как в C-коде
 }
 
-int partition(int A[], int low, int high, int& comparisons, int& swaps) {
-    int pivot = A[high];
-    int i = low - 1;
-    for (int j = low; j <= high - 1; j++) {
-        comparisons++;
-        if (A[j] < pivot) {
+int Partition(int A[], int L, int R) {
+    int x = A[L];
+    int i = L;
+    int j = R;
+
+    while (true) {
+        while (A[i] < x) { C++; i++; }
+        C++;
+        while (A[j] > x) { C++; j--; }
+        C++;
+
+        if (i < j) {
+            Swap(A[i], A[j]);
             i++;
-            std::swap(A[i], A[j]);
-            swaps += 3; // считаем обмен как 3 пересылки
+            j--;
+        } else {
+            return j;
         }
     }
-    std::swap(A[i + 1], A[high]);
-    swaps += 3;
-    return i + 1;
 }
 
-// Вывод таблицы
+void QuickSort(int A[], int L, int R) {
+    if (L < R) {
+        int q = Partition(A, L, R);
+        QuickSort(A, L, q);
+        QuickSort(A, q + 1, R);
+    }
+}
+
 void PrintTable() {
-    cout << "+------+----------------+-------+-------+-------+" << endl;
-    cout << "|  N   | M+C теоретич.  | Убыв. | Случ. | Возр. |" << endl;
-    cout << "+------+----------------+-------+-------+-------+" << endl;
+    cout << "|  N   | Убыв.   | Возр.   | Случ.           |" << endl;
+    cout << "+------+---------+---------+------------------+" << endl;
 
     int sizes[] = {100, 200, 300, 400, 500};
-    for (int n : sizes) {
+    for (int i = 0; i < 5; i++) {
+        int n = sizes[i];
         int* A = new int[n];
+        int result_dec = 0, result_inc = 0, result_rand = 0;
 
-        // Убывающий массив
+        // Убывающий
         FillDec(A, n);
-        int quick_comparisons_dec = 0, quick_swaps_dec = 0; // инициализация
-        quickSort(A, 0, n - 1, quick_comparisons_dec, quick_swaps_dec);
-        int total_quick_dec = quick_comparisons_dec + quick_swaps_dec;
+        C = M = 0;
+        QuickSort(A, 0, n - 1);
+        result_dec = C + M;
 
-        // Случайный массив
-        FillRand(A, n);
-        int quick_comparisons_rand = 0, quick_swaps_rand = 0;
-        quickSort(A, 0, n - 1, quick_comparisons_rand, quick_swaps_rand);
-        int total_quick_rand = quick_comparisons_rand + quick_swaps_rand;
-
-        // Возрастающий массив
+        // Возрастающий
         FillInc(A, n);
-        int quick_comparisons_inc = 0, quick_swaps_inc = 0;
-        quickSort(A, 0, n - 1, quick_comparisons_inc, quick_swaps_inc);
-        int total_quick_inc = quick_comparisons_inc + quick_swaps_inc;
+        C = M = 0;
+        QuickSort(A, 0, n - 1);
+        result_inc = C + M;
 
-        // Теоретическая трудоёмкость, округлённая
-        int theoretical_avg = static_cast<int>(n * log2(n));
+        // Случайный
+        FillRand(A, n);
+        C = M = 0;
+        QuickSort(A, 0, n - 1);
+        result_rand = C + M;
 
-        // Вывод строки таблицы
+        // Печать строки
         cout << "| " << setw(4) << n << " | "
-             << setw(14) << theoretical_avg << " | "
-             << setw(5) << total_quick_dec << " | "
-             << setw(5) << total_quick_rand << " | "
-             << setw(5) << total_quick_inc << " |" << endl;
-        cout << "+------+----------------+-------+-------+-------+" << endl;
+             << setw(7) << result_dec << " | "
+             << setw(7) << result_inc << " | "
+             << setw(16) << result_rand << " |" << endl;
 
         delete[] A;
     }
+    cout << "+------+---------+---------+------------------+" << endl;
 }
 
 int main() {
