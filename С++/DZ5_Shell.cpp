@@ -79,7 +79,7 @@ void ShellSort_C(int A[], int n, int& C, int& M) {
 
 void PrintTableHeader() {
     cout << "+------+------------------------+------------------------+------------------------+" << endl;
-    cout << "|  N   | Shell (Кнут) M+С       | InsertSort M+С         | Shell (C-style) M+С     |" << endl;
+    cout << "|  N   | Shell (Кнут) M+С       | InsertSort M+С         | Shell M+С              |" << endl;
     cout << "+------+------------------------+------------------------+------------------------+" << endl;
 }
 
