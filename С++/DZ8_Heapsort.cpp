@@ -2,57 +2,64 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
-#include <cmath> // для log2
+#include <cmath>
 
 using namespace std;
 
 // Функции заполнения массива
 void FillInc(int A[], int n) {
     for (int i = 0; i < n; i++) {
-        A[i] = i;
+        A[i] = i + 1;
     }
 }
 
 void FillDec(int A[], int n) {
     for (int i = 0; i < n; i++) {
-        A[i] = n - i - 1;
+        A[i] = n - i;
     }
 }
 
 void FillRand(int A[], int n) {
     for (int i = 0; i < n; i++) {
-        A[i] = rand() % 100;
+        A[i] = rand() % 1000;
     }
 }
 
 // Построение кучи с подсчётом сравнений и обменов
 void heapify(int A[], int n, int i, int& comparisons, int& swaps) {
+    int x = A[i];
+    swaps++;
     int largest = i;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
 
-    if (left < n) {
-        comparisons++;
-        if (A[left] > A[largest]) {
-            largest = left;
-        }
-    }
+    while (true) {
+        int j = 2 * largest + 1;
+        if (j >= n)
+            break;
 
-    if (right < n) {
         comparisons++;
-        if (A[right] > A[largest]) {
-            largest = right;
+        if (j + 1 < n && A[j + 1] > A[j]) {
+            j++;
         }
+
+        comparisons++;
+        if (x >= A[j])
+            break;
+
+        A[largest] = A[j];
+        swaps++;
+        largest = j;
     }
 
     if (largest != i) {
-        std::swap(A[i], A[largest]);
-        swaps += 3; // считаем обмен как 3 присваивания
-        heapify(A, n, largest, comparisons, swaps);
+        swaps++;
     }
+    A[largest] = x;
+    swaps++;
 }
 
-// Функция только построения кучи (трудоёмкость построения пирамиды)
+// Построение кучи
 void BuildHeap(int A[], int n, int& comparisons, int& swaps) {
     comparisons = 0;
     swaps = 0;
@@ -61,97 +68,105 @@ void BuildHeap(int A[], int n, int& comparisons, int& swaps) {
     }
 }
 
-// Полная сортировка кучей (BuildHeap + сортировка)
+// Полная сортировка кучей
 void HeapSort(int A[], int n, int& comparisons, int& swaps) {
     comparisons = 0;
     swaps = 0;
 
-    // Построение кучи
     for (int i = n / 2 - 1; i >= 0; i--) {
         heapify(A, n, i, comparisons, swaps);
     }
 
-    // Извлечение элементов из кучи
     for (int i = n - 1; i > 0; i--) {
-        std::swap(A[0], A[i]);
-        swaps += 3;
+        int temp = A[0]; swaps++;
+        A[0] = A[i]; swaps++;
+        A[i] = temp; swaps++;
+
         heapify(A, i, 0, comparisons, swaps);
     }
 }
 
-// Вывод таблицы с построением кучи
+int TheoreticalBuild(int n) {
+    return static_cast<int>(log2(n) + 2 + 2 * log2(n) + 1);
+}
+
+int TheoreticalSort(int n) {
+    return static_cast<int>(n * log2(n) + 6.5 * n - 4 + 2 * n * log2(n) + n + 2);
+}
+
+// Таблица построения кучи
 void PrintBuildHeapTable() {
     cout << "Таблица 1: Трудоёмкость построения кучи (BuildHeap)\n";
-    cout << "+------+--------------+-------+-------+-------+\n";
-    cout << "|  N   |  Теоретич.  | Убыв. | Случ. | Возр. |\n";
-    cout << "+------+--------------+-------+-------+-------+\n";
+    cout << "+------+--------------+--------+--------+--------+\n";
+    cout << "|  N   | Теоретич.   | Убыв.  | Случ.  | Возр.  |\n";
+    cout << "+------+--------------+--------+--------+--------+\n";
 
     int sizes[] = {100, 200, 300, 400, 500};
+
     for (int n : sizes) {
         int* A = new int[n];
 
+        int comp = 0, swp = 0;
+
         FillDec(A, n);
-        int comp_dec = 0, swaps_dec = 0;
-        BuildHeap(A, n, comp_dec, swaps_dec);
-        int total_dec = comp_dec + swaps_dec;
+        BuildHeap(A, n, comp, swp);
+        int total_dec = comp + swp;
 
         FillRand(A, n);
-        int comp_rand = 0, swaps_rand = 0;
-        BuildHeap(A, n, comp_rand, swaps_rand);
-        int total_rand = comp_rand + swaps_rand;
+        BuildHeap(A, n, comp, swp);
+        int total_rand = comp + swp;
 
         FillInc(A, n);
-        int comp_inc = 0, swaps_inc = 0;
-        BuildHeap(A, n, comp_inc, swaps_inc);
-        int total_inc = comp_inc + swaps_inc;
+        BuildHeap(A, n, comp, swp);
+        int total_inc = comp + swp;
 
-        int theoretical = static_cast<int>(n * log2(n) + 6.5 * n - 4);
+        int theoretical = static_cast<int>(log2(n) + 2 + 2 * log2(n) + 1);
 
         cout << "| " << setw(4) << n << " | "
              << setw(12) << theoretical << " | "
-             << setw(5) << total_dec << " | "
-             << setw(5) << total_rand << " | "
-             << setw(5) << total_inc << " |\n";
-        cout << "+------+--------------+-------+-------+-------+\n";
+             << setw(6) << total_dec << " | "
+             << setw(6) << total_rand << " | "
+             << setw(6) << total_inc << " |\n";
+        cout << "+------+--------------+--------+--------+--------+\n";
 
         delete[] A;
     }
 }
 
-// Вывод таблицы с полной сортировкой
+// Таблица полной сортировки
 void PrintHeapSortTable() {
     cout << "\nТаблица 2: Трудоёмкость полной сортировки (HeapSort)\n";
-    cout << "+------+--------------+-------+-------+-------+\n";
-    cout << "|  N   |  Теоретич.  | Убыв. | Случ. | Возр. |\n";
-    cout << "+------+--------------+-------+-------+-------+\n";
+    cout << "+------+--------------+--------+--------+--------+\n";
+    cout << "|  N   | Теоретич.   | Убыв.  | Случ.  | Возр.  |\n";
+    cout << "+------+--------------+--------+--------+--------+\n";
 
     int sizes[] = {100, 200, 300, 400, 500};
+
     for (int n : sizes) {
         int* A = new int[n];
 
+        int comp = 0, swp = 0;
+
         FillDec(A, n);
-        int comp_dec = 0, swaps_dec = 0;
-        HeapSort(A, n, comp_dec, swaps_dec);
-        int total_dec = comp_dec + swaps_dec;
+        HeapSort(A, n, comp, swp);
+        int total_dec = comp + swp;
 
         FillRand(A, n);
-        int comp_rand = 0, swaps_rand = 0;
-        HeapSort(A, n, comp_rand, swaps_rand);
-        int total_rand = comp_rand + swaps_rand;
+        HeapSort(A, n, comp, swp);
+        int total_rand = comp + swp;
 
         FillInc(A, n);
-        int comp_inc = 0, swaps_inc = 0;
-        HeapSort(A, n, comp_inc, swaps_inc);
-        int total_inc = comp_inc + swaps_inc;
+        HeapSort(A, n, comp, swp);
+        int total_inc = comp + swp;
 
-        int theoretical = static_cast<int>(n * log2(n) + 6.5 * n - 4);
+        int theoretical = static_cast<int>(n * log2(n) + 6.5 * n - 4 + 2 * n * log2(n) + n + 2);
 
         cout << "| " << setw(4) << n << " | "
              << setw(12) << theoretical << " | "
-             << setw(5) << total_dec << " | "
-             << setw(5) << total_rand << " | "
-             << setw(5) << total_inc << " |\n";
-        cout << "+------+--------------+-------+-------+-------+\n";
+             << setw(6) << total_dec << " | "
+             << setw(6) << total_rand << " | "
+             << setw(6) << total_inc << " |\n";
+        cout << "+------+--------------+--------+--------+--------+\n";
 
         delete[] A;
     }
