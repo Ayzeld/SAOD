@@ -29,7 +29,7 @@ void BubbleSort(int A[], int n, int& M, int& C) {
     }
 }
 
-void ShakerSort(int A[], int n, int& M, int C) {
+void ShakerSort(int A[], int n, int& M, int& C) {  // <- здесь изменил на int& C
     int left = 0, right = n - 1;
     bool swapped = true;
     M = 0;
@@ -60,13 +60,11 @@ void ShakerSort(int A[], int n, int& M, int C) {
 }
 
 void PrintTable() {
-    std::cout << "+------+-----------------------+-------------------------+\n";
-    std::cout << "|  N   |     Пузырьковая       |      Шейкерная          |\n";
-    std::cout << "|      | Убыв. | Случ. | Возр. | Убыв.  | Случ.  | Возр. |\n";
+    std::cout << "+------+-------+-------+-------+--------+--------+-------+\n";
+    std::cout << "|  N   | Убыв. | Случ. | Возр. | Убыв.  | Случ.  | Возр. |\n";
     std::cout << "+------+-------+-------+-------+--------+--------+-------+\n";
 
     int sizes[] = {100, 200, 300, 400, 500};
-    const int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
 
     for (int n : sizes) {
         int* A = new int[n];
@@ -74,34 +72,28 @@ void PrintTable() {
         int M_bubble, C_bubble;
         int M_shaker, C_shaker;
 
-        // Пузырьковая
-        // Убывающий
+        // Пузырьковая сортировка
         FillDec(A, n);
         BubbleSort(A, n, M_bubble, C_bubble);
         int dec_bubble = M_bubble + C_bubble;
 
-        // Случайный
         FillRand(A, n);
         BubbleSort(A, n, M_bubble, C_bubble);
         int rand_bubble = M_bubble + C_bubble;
 
-        // Возрастающий
         FillInc(A, n);
         BubbleSort(A, n, M_bubble, C_bubble);
         int inc_bubble = M_bubble + C_bubble;
 
-        // Шейкерная
-        // Убывающий
+        // Шейкерная сортировка
         FillDec(A, n);
         ShakerSort(A, n, M_shaker, C_shaker);
         int dec_shaker = M_shaker + C_shaker;
 
-        // Случайный
         FillRand(A, n);
         ShakerSort(A, n, M_shaker, C_shaker);
         int rand_shaker = M_shaker + C_shaker;
 
-        // Возрастающий
         FillInc(A, n);
         ShakerSort(A, n, M_shaker, C_shaker);
         int inc_shaker = M_shaker + C_shaker;
@@ -110,11 +102,11 @@ void PrintTable() {
                   << std::setw(5) << dec_bubble << " | "
                   << std::setw(5) << rand_bubble << " | "
                   << std::setw(5) << inc_bubble << " | "
-                  << std::setw(5) << dec_shaker << " | "
-                  << std::setw(5) << rand_shaker << " | "
-                  << std::setw(5) << inc_shaker << " |" << std::endl;
+                  << std::setw(6) << dec_shaker << " | "
+                  << std::setw(6) << rand_shaker << " | "
+                  << std::setw(5) << inc_shaker << " |\n";
 
-        std::cout << "+------+-------+-------+-------+------------+------------+----------+\n";
+        std::cout << "+------+-------+-------+-------+--------+--------+-------+\n";
 
         delete[] A;
     }
