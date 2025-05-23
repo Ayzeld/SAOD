@@ -4,7 +4,7 @@
 #include <iomanip>
 using namespace std;
 
-// Итеративная версия (добавлен +1 в возвращаемое значение)
+// Итеративная версия 
 int BinarySearchIterative(int A[], int n, int key) {
     int comparisons = 0;
     int left = 0;
@@ -23,7 +23,7 @@ int BinarySearchIterative(int A[], int n, int key) {
     return comparisons + 1; // +1 здесь
 }
 
-// Рекурсивная версия (возвращаем comparisons + 1)
+// Рекурсивная версия 
 int BinarySearchRecursive(int A[], int left, int right, int key, int& comparisons) {
     if (left > right) return comparisons + 1; // +1 здесь
     int mid = left + (right - left) / 2;
