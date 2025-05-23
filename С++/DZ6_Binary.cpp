@@ -4,7 +4,7 @@
 #include <iomanip>
 using namespace std;
 
-// Итеративная версия двоичного поиска
+// Итеративная версия (добавлен +1 в возвращаемое значение)
 int BinarySearchIterative(int A[], int n, int key) {
     int comparisons = 0;
     int left = 0;
@@ -13,23 +13,23 @@ int BinarySearchIterative(int A[], int n, int key) {
         int mid = left + (right - left) / 2;
         comparisons++;
         if (A[mid] == key) {
-            return comparisons; // Нашли элемент
+            return comparisons + 1; // +1 здесь
         } else if (A[mid] < key) {
             left = mid + 1;
         } else {
             right = mid - 1;
         }
     }
-    return comparisons; // Элемент не найден
+    return comparisons + 1; // +1 здесь
 }
 
-// Рекурсивная версия двоичного поиска
+// Рекурсивная версия (возвращаем comparisons + 1)
 int BinarySearchRecursive(int A[], int left, int right, int key, int& comparisons) {
-    if (left > right) return comparisons;
+    if (left > right) return comparisons + 1; // +1 здесь
     int mid = left + (right - left) / 2;
     comparisons++;
     if (A[mid] == key) {
-        return comparisons;
+        return comparisons + 1; // +1 здесь
     } else if (A[mid] < key) {
         return BinarySearchRecursive(A, mid + 1, right, key, comparisons);
     } else {
@@ -37,7 +37,7 @@ int BinarySearchRecursive(int A[], int left, int right, int key, int& comparison
     }
 }
 
-// Вывод таблицы
+// Вывод таблицы (исправлено сохранение результата рекурсивной версии)
 void PrintTable() {
     cout << "+------+----------------+----------------+" << endl;
     cout << "|  N   | Сф I версия    | Сф II версия   |" << endl;
@@ -48,13 +48,11 @@ void PrintTable() {
             A[i] = i;
         }
 
-        // Поиск в середине массива
         int key = A[n / 2];
         int comp_iter = BinarySearchIterative(A, n, key);
         int comp_recur = 0;
-        BinarySearchRecursive(A, 0, n - 1, key, comp_recur);
+        comp_recur = BinarySearchRecursive(A, 0, n - 1, key, comp_recur); // Сохраняем результат!
 
-        // Вывод строки таблицы
         cout << "| " << setw(4) << n << " | "
              << setw(14) << comp_iter << " | "
              << setw(14) << comp_recur << " |" << endl;
@@ -63,6 +61,7 @@ void PrintTable() {
     }
     cout << "+------+----------------+----------------+" << endl;
 }
+
 int main() {
     srand(static_cast<unsigned>(time(0)));
     PrintTable();
