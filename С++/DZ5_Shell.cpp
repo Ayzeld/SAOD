@@ -15,15 +15,18 @@ void InsertSort(int A[], int n, int& M, int& C) {
     C = 0;
     for (int i = 1; i < n; i++) {
         int key = A[i];
-        M++;
         int j = i - 1;
-        while (j >= 0 && (++C, A[j] > key)) {
-            A[j + 1] = A[j];
+        while (j >= 0 && A[j] > key) {
             M++;
+            A[j + 1] = A[j];
+            C++;
             j--;
         }
-        A[j + 1] = key;
         M++;
+        A[j + 1] = key;
+        if (j + 1 != i) {
+            C++;
+        }
     }
 }
 
