@@ -13,23 +13,23 @@ int BinarySearchIterative(int A[], int n, int key) {
         int mid = left + (right - left) / 2;
         comparisons++;
         if (A[mid] == key) {
-            return comparisons + 1; // +1 здесь
+            return comparisons + 1;
         } else if (A[mid] < key) {
             left = mid + 1;
         } else {
             right = mid - 1;
         }
     }
-    return comparisons + 1; // +1 здесь
+    return comparisons + 1;
 }
 
 // Рекурсивная версия 
 int BinarySearchRecursive(int A[], int left, int right, int key, int& comparisons) {
-    if (left > right) return comparisons + 1; // +1 здесь
+    if (left > right) return comparisons + 1; 
     int mid = left + (right - left) / 2;
     comparisons++;
     if (A[mid] == key) {
-        return comparisons + 1; // +1 здесь
+        return comparisons + 1;
     } else if (A[mid] < key) {
         return BinarySearchRecursive(A, mid + 1, right, key, comparisons);
     } else {
@@ -37,7 +37,7 @@ int BinarySearchRecursive(int A[], int left, int right, int key, int& comparison
     }
 }
 
-// Вывод таблицы (исправлено сохранение результата рекурсивной версии)
+// Вывод таблицы 
 void PrintTable() {
     cout << "+------+----------------+----------------+" << endl;
     cout << "|  N   | Сф I версия    | Сф II версия   |" << endl;
@@ -51,7 +51,7 @@ void PrintTable() {
         int key = A[n / 2];
         int comp_iter = BinarySearchIterative(A, n, key);
         int comp_recur = 0;
-        comp_recur = BinarySearchRecursive(A, 0, n - 1, key, comp_recur); // Сохраняем результат!
+        comp_recur = BinarySearchRecursive(A, 0, n - 1, key, comp_recur); 
 
         cout << "| " << setw(4) << n << " | "
              << setw(14) << comp_iter << " | "
