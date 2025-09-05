@@ -8,6 +8,7 @@ using namespace std;
 vector<int> simpleSearch(const string &text, const string &pattern, int &count) {
     vector<int> pos;
     int n = text.size(), m = pattern.size();
+    if (m == 0 || m > n) return{};
 
     for (int i = 0; i <= n - m; i++) {
         int j = 0;
@@ -15,7 +16,7 @@ vector<int> simpleSearch(const string &text, const string &pattern, int &count) 
             count++;
             j++;
         }
-        if (j < m) count++; // сравнение, на котором цикл остановился
+        if (j < m) count++;
         if (j == m) pos.push_back(i);
     }
     return pos;
@@ -26,17 +27,15 @@ vector<int> rabinKarp(const string &text, const string &pattern, int &count) {
     vector<int> pos;
     const int p = 31;
     const int mod = 1e9 + 7;
-
     int n = text.size(), m = pattern.size();
     long long hPat = 0, hText = 0, pPow = 1;
+    if (m == 0 || m > n) return{};
 
-    // считаем хэши
     for (int i = 0; i < m; i++) {
         hPat = (hPat * p + pattern[i]) % mod;
         hText = (hText * p + text[i]) % mod;
         if (i < m - 1) pPow = (pPow * p) % mod;
     }
-
     for (int i = 0; i <= n - m; i++) {
         if (hPat == hText) {
             bool ok = true;
@@ -58,21 +57,17 @@ vector<int> rabinKarp(const string &text, const string &pattern, int &count) {
 
 int main() {
     setlocale(LC_ALL, "Russian");
-
     string text, pattern;
     cout << "Введите текст: ";
     getline(cin, text);
     cout << "Введите подстроку: ";
     getline(cin, pattern);
-
     int cmp1 = 0, cmp2 = 0;
-
     auto res1 = simpleSearch(text, pattern, cmp1);
     auto res2 = rabinKarp(text, pattern, cmp2);
-
     cout << "\nТекст: " << text << "\nПодстрока: " << pattern << "\n";
-
     cout << "\nПеребор:\n";
+
     if (res1.empty()) cout << "Не найдено\n";
     else {
         cout << "Индексы: ";
@@ -80,7 +75,6 @@ int main() {
         cout << "\n";
     }
     cout << "Сравнений: " << cmp1 << "\n";
-
     cout << "\nРабин-Карп:\n";
     if (res2.empty()) cout << "Не найдено\n";
     else {
@@ -89,6 +83,5 @@ int main() {
         cout << "\n";
     }
     cout << "Сравнений: " << cmp2 << "\n";
-
     return 0;
 }
